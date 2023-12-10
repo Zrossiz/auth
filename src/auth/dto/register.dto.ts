@@ -1,4 +1,4 @@
-import { IsPasswordMatchingConstraint } from '@app/common/decorators/is-passwords-matching-constraint';
+import { IsPasswordMatchingConstraint } from '@app/common/decorators';
 import { IsEmail, IsString, MinLength, Validate } from 'class-validator';
 
 export class RegisterDto {

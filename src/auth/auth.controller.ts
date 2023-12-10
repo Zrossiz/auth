@@ -63,6 +63,6 @@ export class AuthController {
       path: '/',
     });
 
-    res.status(HttpStatus.CREATED).json(tokens);
+    res.status(HttpStatus.CREATED).json({ accessToken: tokens.accessToken });
   }
 }
