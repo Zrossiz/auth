@@ -11,12 +11,12 @@ export class UserController {
   }
 
   @Get(':idOrEmail')
-  findOneUser(@Param() idOrEmail: string) {
+  findOneUser(@Param('idOrEmail') idOrEmail: string) {
     return this.userService.findOne(idOrEmail);
   }
 
   @Delete(':id')
-  delete(@Param() id: string) {
+  delete(@Param('id') id: string) {
     return this.userService.delete(id);
   }
 }
