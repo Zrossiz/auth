@@ -1,4 +1,9 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { LoginDto, RegisterDto } from './dto';
 import { UserService } from 'src/user/user.service';
 import { Tokens } from './interafaces';
@@ -19,6 +24,17 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
+    const user: User = await this.userService
+      .findOne(dto.email)
+      .catch((err) => {
+        this.logger.error(err);
+        return null;
+      });
+
+    if (user) {
+      throw new ConflictException('Такой пользователь уже зарегистрирован');
+    }
+
     return this.userService.save(dto).catch((err) => {
       this.logger.error(err);
       return null;
@@ -36,11 +52,13 @@ export class AuthService {
       throw new UnauthorizedException('Неверный логин или пароль');
     }
 
-    const accessToken = this.jwtService.sign({
-      id: user.id,
-      email: user.email,
-      roles: user.roles,
-    });
+    const accessToken =
+      'Bearer: ' +
+      this.jwtService.sign({
+        id: user.id,
+        email: user.email,
+        roles: user.roles,
+      });
 
     const refreshToken = await this.getRefreshToken(user.id);
 

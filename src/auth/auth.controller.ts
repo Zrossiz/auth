@@ -32,6 +32,8 @@ export class AuthController {
         `Ошибка при входе с данными ${JSON.stringify(dto)}`,
       );
     }
+
+    return { accesToken: tokens.accessToken };
   }
 
   @Get('refresh')
