@@ -13,6 +13,7 @@ import { LoginDto, RegisterDto } from './dto';
 import { AuthService } from './auth.service';
 import { Tokens } from './interafaces';
 import { ConfigService } from '@nestjs/config';
+import { Cookie } from '@app/common/decorators';
 
 const REFRESH_TOKEN = 'refreshtoken';
 
@@ -47,7 +48,20 @@ export class AuthController {
   }
 
   @Get('refresh')
-  refreshToken() {}
+  async refreshToken(
+    @Cookie(REFRESH_TOKEN) refreshToken: string,
+    @Res() res: Response,
+  ) {
+    if (!refreshToken) {
+      throw new UnauthorizedException();
+    }
+
+    const tokens = await this.authService.refreshTokens(refreshToken);
+    if (!tokens) {
+      throw new UnauthorizedException();
+    }
+    this.setRefreshTokenToCookies(tokens, res);
+  }
 
   private setRefreshTokenToCookies(tokens: Tokens, res: Response) {
     if (!tokens) {

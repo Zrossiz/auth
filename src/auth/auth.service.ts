@@ -52,6 +52,34 @@ export class AuthService {
       throw new UnauthorizedException('Неверный логин или пароль');
     }
 
+    return this.generateTokens(user);
+  }
+
+  async refreshTokens(refreshToken: string): Promise<Tokens> {
+    const token = await this.prismaService.token.delete({
+      where: { token: refreshToken },
+    });
+
+    if (!token) {
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.userService.findOne(token.userId);
+
+    return this.generateTokens(user);
+  }
+
+  private async getRefreshToken(userId: string): Promise<Token> {
+    return this.prismaService.token.create({
+      data: {
+        token: v4(),
+        exp: add(new Date(), { months: 1 }),
+        userId,
+      },
+    });
+  }
+
+  private async generateTokens(user: User): Promise<Tokens> {
     const accessToken =
       'Bearer: ' +
       this.jwtService.sign({
@@ -63,15 +91,5 @@ export class AuthService {
     const refreshToken = await this.getRefreshToken(user.id);
 
     return { accessToken, refreshToken };
-  }
-
-  private async getRefreshToken(userId: string): Promise<Token> {
-    return this.prismaService.token.create({
-      data: {
-        token: v4(),
-        exp: add(new Date(), { months: 1 }),
-        userId,
-      },
-    });
   }
 }
