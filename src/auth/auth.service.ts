@@ -41,6 +41,10 @@ export class AuthService {
       email: user.email,
       roles: user.roles,
     });
+
+    const refreshToken = await this.getRefreshToken(user.id);
+
+    return { accessToken, refreshToken };
   }
 
   private async getRefreshToken(userId: string): Promise<Token> {
