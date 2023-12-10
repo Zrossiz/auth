@@ -16,7 +16,13 @@ export class UserService {
     });
   }
 
-  findOne() {}
+  async findOne(idOrEmail: string) {
+    return await this.prismaService.user.findFirst({
+      where: {
+        OR: [{ id: idOrEmail }, { email: idOrEmail }],
+      },
+    });
+  }
 
   delete() {}
 }
