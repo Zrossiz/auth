@@ -5,10 +5,11 @@ import {
   Get,
   HttpStatus,
   Post,
+  Req,
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { LoginDto, RegisterDto } from './dto';
 import { AuthService } from './auth.service';
 import { Tokens } from './interafaces';
@@ -36,7 +37,13 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() dto: LoginDto, @Res() res: Response) {
+  async login(
+    @Body() dto: LoginDto,
+    @Res() res: Response,
+    @Req() req: Request,
+  ) {
+    const agent = req.headers['user-agent'];
+    console.log({ agent });
     const tokens = await this.authService.login(dto);
 
     if (!tokens) {
