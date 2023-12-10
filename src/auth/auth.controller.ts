@@ -4,13 +4,22 @@ import {
   Controller,
   Get,
   Post,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { LoginDto, RegisterDto } from './dto';
 import { AuthService } from './auth.service';
+import { Tokens } from './interafaces';
+import { ConfigService } from '@nestjs/config';
+
+const REFRESH_TOKEN = 'refreshtoken';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('register')
   async register(@Body() dto: RegisterDto) {
@@ -38,4 +47,19 @@ export class AuthController {
 
   @Get('refresh')
   refreshToken() {}
+
+  private setRefreshTokenToCookies(tokens: Tokens, res: Response) {
+    if (!tokens) {
+      throw new UnauthorizedException();
+    }
+
+    res.cookie(REFRESH_TOKEN, tokens.refreshToken.token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      expires: new Date(tokens.refreshToken.exp),
+      secure:
+        this.configService.get('NODE_ENV', 'development') === 'production',
+      path: '/',
+    });
+  }
 }
