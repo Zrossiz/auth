@@ -3,7 +3,9 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Post,
+  Res,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -33,7 +35,7 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() dto: LoginDto) {
+  async login(@Body() dto: LoginDto, @Res() res: Response) {
     const tokens = await this.authService.login(dto);
 
     if (!tokens) {
@@ -41,8 +43,7 @@ export class AuthController {
         `Ошибка при входе с данными ${JSON.stringify(dto)}`,
       );
     }
-
-    return { accesToken: tokens.accessToken };
+    this.setRefreshTokenToCookies(tokens, res);
   }
 
   @Get('refresh')
@@ -61,5 +62,7 @@ export class AuthController {
         this.configService.get('NODE_ENV', 'development') === 'production',
       path: '/',
     });
+
+    res.status(HttpStatus.CREATED).json(tokens);
   }
 }
