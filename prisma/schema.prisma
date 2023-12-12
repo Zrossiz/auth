@@ -23,10 +23,11 @@ model User {
 }
 
 model Token {
-  token  String   @unique
-  exp    DateTime
-  userId String?
-  User   User?    @relation(fields: [userId], references: [id])
+  token     String   @unique
+  exp       DateTime
+  userId    String?
+  userAgent String   @map("user_agent")
+  User      User?    @relation(fields: [userId], references: [id])
 
   @@map("tokens")
 }

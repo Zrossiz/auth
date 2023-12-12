@@ -5,16 +5,15 @@ import {
   Get,
   HttpStatus,
   Post,
-  Req,
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { LoginDto, RegisterDto } from './dto';
 import { AuthService } from './auth.service';
 import { Tokens } from './interafaces';
 import { ConfigService } from '@nestjs/config';
-import { Cookie } from '@app/common/decorators';
+import { Cookie, UserAgent } from '@app/common/decorators';
 
 const REFRESH_TOKEN = 'refreshtoken';
 
@@ -40,9 +39,8 @@ export class AuthController {
   async login(
     @Body() dto: LoginDto,
     @Res() res: Response,
-    @Req() req: Request,
+    @UserAgent() agent: string,
   ) {
-    const agent = req.headers['user-agent'];
     console.log({ agent });
     const tokens = await this.authService.login(dto);
 
