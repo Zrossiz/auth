@@ -1,30 +1,38 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
   Param,
   ParseUUIDPipe,
   Post,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
+import { UserResponse } from './reposonses';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Post('')
-  createUser(@Body() dto) {
-    return this.userService.save(dto);
+  async createUser(@Body() dto) {
+    const user = await this.userService.save(dto);
+    return new UserResponse(user);
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':idOrEmail')
-  findOneUser(@Param('idOrEmail') idOrEmail: string) {
-    return this.userService.findOne(idOrEmail);
+  async findOneUser(@Param('idOrEmail') idOrEmail: string) {
+    const user = await this.userService.findOne(idOrEmail);
+    return new UserResponse(user);
   }
 
   @Delete(':id')
-  delete(@Param('id', ParseUUIDPipe) id: string) {
-    return this.userService.delete(id);
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
+    const user = await this.userService.delete(id);
+    return user;
   }
 }
